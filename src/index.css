@@ -165,8 +165,7 @@ svg {
   height: inherit;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow-x: none;
+  
   margin-top: 30px;
 }
 
@@ -281,9 +280,7 @@ svg {
 
 .container > .caption {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+ 
   overflow: hidden;
 }
 
@@ -314,11 +311,13 @@ svg {
   text-overflow: ellipsis;
 }
 
-.container > .caption > .content > .information > .text {
-  max-width: 35%;
+ .text {
+  max-width: 80%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 500 ;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .container > .caption > .content > .information > button {
@@ -357,7 +356,8 @@ svg {
 }
 
 .container > .topComments > .comment > .text {
-  font-size: 13px;
+  font-size: 15px;
+  
 }
 
 .container > .bottom {
@@ -389,13 +389,14 @@ svg {
   cursor: pointer;
 }
 
-.container > .likes {
+.likes {
   color: black;
   width: 100%;
   padding: 5px 1rem;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 1s ease-out;
 }
 
 .container > .direction {
@@ -494,6 +495,7 @@ textarea:focus {
 .heart{
   width:50px;
   opacity: 0;
+  z-index: -1;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -563,6 +565,34 @@ textarea:focus {
   -webkit-user-select: none;
   touch-action: manipulation;
 }
+.all-com{
+  opacity: 1;
+  width: 300px;
+  padding: 3px;
+  
+}
+.theCom{
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  background-color: #e0cece00;
+  margin-left: 7px;
+  margin: 10px;
+}
+.com-img{
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: 5px;
+  
+}
+.inside{
+  background-color: rgba(235, 235, 235, 0.959);
+  border-radius: 15px;
+  padding: 10px;
+  width: 200px;
+}
+
 
 
 

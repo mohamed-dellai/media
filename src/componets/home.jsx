@@ -17,16 +17,15 @@ export function Home(){
   const[clicks,setClicks]=useState(()=>[])
   
   useEffect(()=>{
-    const timer=setTimeout(()=>{getPosts()},1000)
-    return () => clearTimeout(timer);
+    const timer=setInterval(()=>{getPosts()},1000);
+    return () => clearInterval(timer);
     
   })
   const like=async (e)=>{
     const id=e.target.parentElement.id
     const t=e.currentTarget
-    
-    t.style.color="red"
-    setTimeout((t)=>{t.style.color="black"},500)
+    t.style.color="red";
+    setTimeout(()=>{e.target.parentElement.children[1].style="black"},1000)
     const data={
       id:id,
       email:snapshot.email
@@ -60,8 +59,8 @@ export function Home(){
           arr[parseInt(e.path[2].id)]=0
           e.path[1].children[1].style.opacity="1"
           e.path[1].children[1].style.width="100px"
-          
-          setTimeout(()=>{e.path[1].children[1].style.opacity="0";e.path[1].children[1].style.width="50px"},500)
+          e.path[1].children[1].style.zIndex="2"
+          setTimeout(()=>{e.path[1].children[1].style.opacity="0";e.path[1].children[1].style.width="50px";e.path[1].children[1].style.zIndex="-1"},500)
           
 
         }
@@ -87,7 +86,7 @@ export function Home(){
       img.src=arr.data[k].photo
       img.classList.add("post")
       allimageContainer[k].prepend(img)
-      console.log(allimageContainer[k].children.length)
+      
       }
       
      }
@@ -109,9 +108,9 @@ export function Home(){
       const posts=await axios.get(`http://localhost:5000/home`)
       const userInfo=await axios.get(`http://localhost:5000/home:${snapshot.email}`)
       setPosts(posts.data)
-      
       setUserName(userInfo.data[0].name)
       renderImages(posts)
+      
     }
   catch(e){
     console.log(e)
@@ -136,26 +135,95 @@ export function Home(){
 
     const data={value:e.target.result, email:snapshot.email, text:document.getElementById('share').value, date:date}
     const result=await axios.post("http://localhost:5000/upload",data)
-    console.log(result.data)
+    console.log(result)
     
   }
 
   const logFile=(e)=>{
-    const time = new Date();
-    let date=`${time.getDate()}-${time.getMonth()}-${time.getFullYear()} ${time.getHours()}:${time.getMinutes()}`
 
+     let date=getTime()
      sendPost(date,e)
   }
 
   const handleFile=()=>{
+    if(document.getElementById("share").value==="")
+     return;
     const reader = new FileReader();
     let file=document.getElementById("input-file").files[0];
     reader.onload = logFile;
     reader.readAsDataURL(file)
   }
  
- 
-  
+ const getTime=()=>{
+  const time = new Date();
+  return (`${time.getDate()}-${time.getMonth()}-${time.getFullYear()} ${time.getHours()}:${time.getMinutes()}`)
+ }
+
+  const sendComment=async (e)=>{
+    let content=e.currentTarget.parentElement.children[1].value;
+    e.currentTarget.parentElement.children[1].value=""
+    if(content!==""){
+    
+    var id=e.currentTarget.parentElement.parentElement.parentElement.id
+    for(let i=0;i<post.length;i++){
+      if(id===post[i].id){
+        var elem=post[i]
+        break;
+      }
+    }
+    
+    let date=getTime()
+    
+    let data={
+      value: content,
+      date: date,
+      email: elem.email,
+      id: id 
+    }
+    try{
+      const result=await axios.put("http://localhost:5000/comment",data);
+      console.log(result)
+    }
+    catch(e){
+      console.log(e)
+    }
+    
+  }
+  }
+
+  const loadComment=async(e)=>{
+    let l=e.currentTarget.parentElement.children[4].children.length;
+    
+    let id=e.currentTarget.parentElement.id;
+    try{
+      const result=await axios.get(`http://localhost:5000/comment?l=${l}&id=${id}`);
+      console.log(result)
+      if(result.data.name===undefined)
+       return;
+      let newElem=document.createElement("div");
+      newElem.classList.add("theCom");
+      let image=document.createElement("img");
+      image.src="https://cdn2.bigcommerce.com/server5400/3po1k2/products/8171/images/14559/161_light_blue__46032.1418747956.1280.1280.jpg"
+      image.classList.add('com-img');
+      let inside=document.createElement("div");
+      inside.classList.add("inside")
+      let name=document.createElement("p");
+      name.style.fontWeight=800;
+      name.innerText=result.data.name
+      let content=document.createElement("p");
+      content.innerHTML=result.data.cont
+      newElem.appendChild(image);
+      newElem.appendChild(inside);
+      inside.appendChild(name);
+      inside.appendChild(content);
+      console.log(newElem)
+      e.target.parentElement.children[4].appendChild(newElem)
+      
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
    
     return(
         
@@ -210,29 +278,32 @@ export function Home(){
 
     </div>
 
-    <div className="middle"  >
+    <div className="middle" >
 
       
       <img className="heart" src={heart} alt="like"></img>
     </div>
-
-    
-
-    <div className="likes"  onClick={like}>{obj.likes} likes</div>
 
     <div className="caption">
       <div className="content">
         <div className="information">
           
           
-          <div className="text"> {obj.content} </div> <button>. . .more</button>
+          <div className="text"> <p>{obj.content}</p> </div> 
         </div> 
       </div>
-    </div>
 
-    <div className="direction">View all comments</div>
+    <div className="likes"  onClick={like}>{obj.likes} likes</div>
 
     
+    </div>
+
+    <div className="direction" style={{cursor:"pointer"}} onClick={loadComment}>View comments</div>
+
+    <div className="all-com" id="all-com">
+       
+       
+     </div>
 
     <div className="time"> 10 HOURS AGO </div>
 
@@ -241,7 +312,7 @@ export function Home(){
       <div className="bin">
         <img src={smile} width="30px" alt='smile'/>
         <textarea cols="30" rows="1" id="comment" placeholder="Add a comment..."></textarea>
-        <button id="post" disabled>Post</button>
+        <button id="post" onClick={sendComment}>Post</button>
       </div>
 
     </div>
